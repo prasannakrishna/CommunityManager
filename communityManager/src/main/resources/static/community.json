@@ -1,0 +1,36 @@
+{
+  "communityName": "Retail Supplier Community",
+  "communityUid": "supplier-retail-001",
+  "type": "SUPPLIER",
+  "skus": [
+    {
+      "id": 101,
+      "skuName": "Product SKU 1"
+    },
+    {
+      "id": 102,
+      "skuName": "Product SKU 2"
+    }
+  ],
+  "location": "New York",
+  "createdDate": "2023-09-15T10:00:00",
+  "updatedDate": "2023-09-15T12:30:00",
+  "keywords": [
+    "retail",
+    "supplier",
+    "electronics",
+    "community"
+  ],
+  "users": [
+    {
+      "id": 201,
+      "userId": 501,
+      "userName": "John Doe"
+    },
+    {
+      "id": 202,
+      "userId": 502,
+      "userName": "Jane Smith"
+    }
+  ]
+}

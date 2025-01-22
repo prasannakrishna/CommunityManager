@@ -1,0 +1,15 @@
+{
+  "trackingLevel1": "CASE",
+  "trackingLevel2": "BOX",
+  "trackingRatio1To2": 24,
+  "trackingLevel3": "PALLET",
+  "trackingRatio2To3": 5,
+  "trackingLevel4": "LAYER",
+  "trackingRatio3To4": 10,
+  "trackingLevel5": "TIER",
+  "trackingRatio4To5": 12,
+  "lowestUnitWeight": 12.5,
+  "tagVolumeWeight": 15.75,
+  "taggedAt": "PALLET",
+  "handlingUnit": "CONTAINER"
+}
