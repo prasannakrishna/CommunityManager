@@ -3,8 +3,10 @@ package com.bhagwat.retail.community.controller;
 import com.bhagwat.retail.community.entity.Community;
 import com.bhagwat.retail.community.service.CommunityService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -13,11 +15,6 @@ import java.util.List;
 public class CommunityController {
     @Autowired
     private CommunityService communityService;
-
-    @PostMapping("/create")
-    public ResponseEntity<Community> createCommunity(@RequestBody Community community) {
-        return ResponseEntity.ok(communityService.createCommunity(community));
-    }
 
     @PostMapping("/{communityId}/skus/{skuId}")
     public ResponseEntity<Community> addSkuToCommunity(@PathVariable Long communityId, @PathVariable Long skuId) {
@@ -29,7 +26,7 @@ public class CommunityController {
         return ResponseEntity.ok(communityService.searchCommunityByKeyword(keyword));
     }
     @PostMapping
-    public Community createCommunity(@RequestParam String name, @RequestBody List<String> hashKeys) {
+    public Community createCommunitywithkey(@RequestParam String name, @RequestBody List<String> hashKeys) {
         if (hashKeys.size() != 7) {
             throw new IllegalArgumentException("Exactly 7 hash keys are required.");
         }
@@ -41,28 +38,12 @@ public class CommunityController {
         return communityService.autoCompleteHashKeys(prefix);
     }
 
-    @GetMapping("/search")
-    public List<Community> findCommunitiesByHashKey(@RequestParam String hashKey) {
-        return communityService.findCommunitiesByHashKey(hashKey);
-    }
     //start
     public CommunityController(CommunityService communityService) {
         this.communityService = communityService;
     }
 
-    @PostMapping
-    public Community createCommunity(@RequestParam String name, @RequestBody List<String> hashKeys) {
-        try {
-            return communityService.createCommunity(name, hashKeys);
-        } catch (IllegalStateException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
-        }
-    }
 
-    @GetMapping("/autocomplete")
-    public List<String> autoCompleteHashKeys(@RequestParam String prefix) {
-        return communityService.autoCompleteHashKeys(prefix);
-    }
 
     @GetMapping("/search")
     public List<Community> findCommunitiesByHashKey(@RequestParam String hashKey) {

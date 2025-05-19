@@ -1,7 +1,11 @@
 package com.bhagwat.retail.community.entity;
 
 import com.bhagwat.retail.community.enums.CommunityType;
+import com.bhagwat.retail.community.enums.InterestCategory;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,6 +15,9 @@ import java.util.Set;
 
 @Entity
 @Table(name = "community")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Community {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +30,13 @@ public class Community {
     private String communityUid;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "community_type", nullable = false)
+    @Column(name = "community_type", nullable = true)
     private CommunityType type;  // ENUM: SUPPLIER, CONSUMER, SERVICE_PROVIDERS
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "interst_category", nullable = true)
+    private InterestCategory interestCategory;  // ENUM: SUPPLIER, CONSUMER, SERVICE_PROVIDERS
+
 
     @ManyToMany
     @JoinTable(
@@ -32,7 +44,6 @@ public class Community {
             joinColumns = @JoinColumn(name = "community_id"),
             inverseJoinColumns = @JoinColumn(name = "sku_id")
     )
-    private List<Sku> skus = new ArrayList<>();
 
     @Column(name = "location")
     private String location;
@@ -50,86 +61,5 @@ public class Community {
 
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserCommunityMapping> users = new ArrayList<>();
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCommunityName() {
-        return communityName;
-    }
-
-    public void setCommunityName(String communityName) {
-        this.communityName = communityName;
-    }
-
-    public String getCommunityUid() {
-        return communityUid;
-    }
-
-    public void setCommunityUid(String communityUid) {
-        this.communityUid = communityUid;
-    }
-
-    public CommunityType getType() {
-        return type;
-    }
-
-    public void setType(CommunityType type) {
-        this.type = type;
-    }
-
-    public List<Sku> getSkus() {
-        return skus;
-    }
-
-    public void setSkus(List<Sku> skus) {
-        this.skus = skus;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public LocalDateTime getUpdatedDate() {
-        return updatedDate;
-    }
-
-    public void setUpdatedDate(LocalDateTime updatedDate) {
-        this.updatedDate = updatedDate;
-    }
-
-    public Set<String> getKeywords() {
-        return keywords;
-    }
-
-    public void setKeywords(Set<String> keywords) {
-        this.keywords = keywords;
-    }
-
-    public List<UserCommunityMapping> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<UserCommunityMapping> users) {
-        this.users = users;
-    }
-// Getters and Setters
 }
 
