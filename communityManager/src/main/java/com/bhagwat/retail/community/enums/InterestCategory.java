@@ -1,7 +1,9 @@
 package com.bhagwat.retail.community.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum InterestCategory {
-    DEFAULT("NA", "-", "Not Available"),
+    DEFAULT("", "", "Not Available"),
     FOOD_AND_BEVERAGES("FOOD", "Food & Beverages", "Includes groceries, snacks, beverages, organic foods"),
     FASHION_AND_LIFESTYLE("FASHION", "Fashion & Lifestyle", "Clothing, footwear, and fashion accessories"),
     HEALTH_AND_WELLNESS("HEALTH", "Health & Wellness", "Fitness, supplements, and wellness products"),
@@ -43,6 +45,10 @@ public enum InterestCategory {
 
     public String getDescription() {
         return description;
+    }
+    @JsonCreator
+    public static InterestCategory fromString(String key) {
+        return key == null ? null : InterestCategory.valueOf(key.toUpperCase());
     }
 }
 

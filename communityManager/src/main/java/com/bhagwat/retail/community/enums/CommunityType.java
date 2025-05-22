@@ -1,7 +1,9 @@
 package com.bhagwat.retail.community.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum CommunityType {
-    DEFAULT("NA", "-", "Not Available"),
+    DEFAULT("", "", "Not Available"),
     LINGUISTIC("LING", "Linguistic", "Communities based on shared language or dialect"),
     RELIGIOUS("REL", "Religious", "Communities centered around a shared religion or faith"),
     ETHNIC("ETH", "Ethnic", "Communities formed based on shared ancestry or cultural heritage"),
@@ -29,6 +31,11 @@ public enum CommunityType {
 
     public String getDescription() {
         return description;
+    }
+
+    @JsonCreator
+    public static CommunityType fromString(String key) {
+        return key == null ? null : CommunityType.valueOf(key.toUpperCase());
     }
 }
 

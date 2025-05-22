@@ -37,14 +37,6 @@ public class Community {
     @Column(name = "interst_category", nullable = true)
     private InterestCategory interestCategory;  // ENUM: SUPPLIER, CONSUMER, SERVICE_PROVIDERS
 
-
-    @ManyToMany
-    @JoinTable(
-            name = "community_sku_mapping",
-            joinColumns = @JoinColumn(name = "community_id"),
-            inverseJoinColumns = @JoinColumn(name = "sku_id")
-    )
-
     @Column(name = "location")
     private String location;
 

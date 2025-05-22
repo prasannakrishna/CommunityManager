@@ -1,11 +1,17 @@
 package com.bhagwat.retail.community.service;
 
+import com.bhagwat.retail.community.dto.CommunityResponseDto;
+import com.bhagwat.retail.community.dto.CreateCommunityRequestDto;
 import com.bhagwat.retail.community.entity.Community;
+import com.bhagwat.retail.community.entity.CommunityDocument;
 import com.bhagwat.retail.community.entity.Sku;
+import com.bhagwat.retail.community.mapper.CommunityMapper;
 import com.bhagwat.retail.community.repository.CommunityRepository;
+import com.bhagwat.retail.community.repository.CommunitySearchRepository;
 import com.bhagwat.retail.community.repository.SkuRepository;
-import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.ResourceNotFoundException;
+import org.springframework.data.elasticsearch.core.suggest.Completion;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +27,9 @@ public class CommunityService {
     private CommunityRepository communityRepository;
 
     @Autowired
+    private CommunitySearchRepository communitySearchRepository;
+
+    @Autowired
     private SkuRepository skuRepository;
 
     private final StringRedisTemplate redisTemplate;
@@ -30,9 +39,11 @@ public class CommunityService {
         this.redisTemplate = redisTemplate;
     }
 
-    public Community createCommunity(String name, List<String> hashKeys) {
-        if (hashKeys.size() != 7) {
-            throw new IllegalArgumentException("Exactly 7 hash keys are required.");
+    public CommunityResponseDto createCommunity(CreateCommunityRequestDto request) {
+
+        Set<String> hashKeys = request.getKeywords();
+        if (hashKeys.size() > 7) {
+            throw new IllegalArgumentException("More then 7 hash keys are not required.");
         }
 
         // Validate if all keys exist in a single community
@@ -49,7 +60,34 @@ public class CommunityService {
         Community community = new Community();
         //community.setName(name);
         //community.setHashKeys(hashKeys);
-        return communityRepository.save(community);
+        // Save to RDBMS
+        community.setCommunityName(request.getCommunityName());
+        community.setCommunityUid(request.getCommunityUid());
+        community.setType(request.getType());
+        community.setInterestCategory(request.getInterestCategory());
+        community.setLocation(request.getLocation());
+        community.setKeywords(request.getKeywords());
+        community.setCreatedDate(LocalDateTime.now());
+        community.setUpdatedDate(LocalDateTime.now());
+
+        Community saved = communityRepository.save(community);
+
+        // Save to Elasticsearch
+        CommunityDocument doc = CommunityDocument.builder()
+                .id(String.valueOf(saved.getId()))
+                .communityName(saved.getCommunityName())
+                .communityUid(saved.getCommunityUid())
+                .type(saved.getType())
+                .interestCategory(saved.getInterestCategory())
+                .location(saved.getLocation())
+                .createdDate(saved.getCreatedDate())
+                .updatedDate(saved.getUpdatedDate())
+                .keywords(saved.getKeywords())
+                .suggest(new Completion(new ArrayList<>(saved.getKeywords())))  // For autocomplete
+                .build();
+
+        communitySearchRepository.save(doc);
+        return CommunityMapper.toCommunityResponseDto(saved);
     }
 
     public List<String> autoCompleteHashKeys(String prefix) {
