@@ -3,13 +3,18 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.bhagwat.retail.community.entity.CommunityDocument;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.Query;
 import org.springframework.stereotype.Service;
+import co.elastic.clients.elasticsearch._types.query_dsl.ScriptScoreFunction;
+import co.elastic.clients.elasticsearch._types.Script;
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScore;
+import co.elastic.clients.elasticsearch._types.query_dsl.ScriptScoreFunction;
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScore;
+
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -90,55 +95,27 @@ public class CommunitySearchService {
     }
 
     public List<CommunityDocument> searchCommunities(List<String> searchKeys, String type, String interestCategory){
-        // Build the main bool query
-        BoolQuery.Builder boolQueryBuilder = QueryBuilders.bool();
-
-        // Add fuzzy should clauses for keywords
-        for (String key : searchKeys) {
-            boolQueryBuilder.should(s -> s
-                    .fuzzy(f -> f
-                            .field("keywords")
-                            .value(key)
-                            .fuzziness("AUTO")
-                    )
-            );
-        }
-
-        // Minimum 1 should match (maximum 7 based on input size)
-        if (!searchKeys.isEmpty()) {
-            boolQueryBuilder.minimumShouldMatch("1");
-        }
-
-        // Add filter for interestCategory if provided
-        if (interestCategory != null && !interestCategory.isBlank()) {
-            boolQueryBuilder.must(m -> m
-                    .term(t -> t
-                            .field("interestCategory.keyword") // use `.keyword` for exact match
-                            .value(interestCategory)
-                    )
-            );
-        }
-
-        // Add filter for community type if provided
-        if (type != null && !type.isBlank()) {
-            boolQueryBuilder.must(m -> m
-                    .term(t -> t
-                            .field("communityType.keyword") // assumes type is stored as 'communityType'
-                            .value(type)
-                    )
-            );
-        }
-
-
-        // Build and execute the query
         Query query = NativeQuery.builder()
-                .withQuery(q -> q.bool(boolQueryBuilder.build()))
+                .withQuery(q -> q
+                        .match(m -> m
+                                .field("keywords")
+                                .query("agriculture")
+                        )
+                )
                 .build();
-
+        Query query2 = NativeQuery.builder()
+                .withQuery(q -> q
+                        .match(m -> m
+                                .field("suggest.input")
+                                .query("agriculture")
+                        )
+                )
+                .build();
         SearchHits<CommunityDocument> searchHits =
-                elasticsearchOperations.search(query, CommunityDocument.class);
+                elasticsearchOperations.search(query2, CommunityDocument.class);
 
         return searchHits.stream()
+                .sorted(Comparator.comparingDouble(SearchHit<CommunityDocument>::getScore).reversed())
                 .map(SearchHit::getContent)
                 .collect(Collectors.toList());
     }
@@ -150,50 +127,64 @@ public class CommunitySearchService {
 
         BoolQuery.Builder boolQueryBuilder = QueryBuilders.bool();
 
-        // Fuzzy "should" clauses for each search key
         if (searchKeys != null && !searchKeys.isEmpty()) {
-            for (String key : searchKeys) {
-                if (key != null && !key.isBlank()) {
-                    boolQueryBuilder.should(s -> s
-                            .fuzzy(f -> f
-                                    .field("keywords")
-                                    .value(key)
-                                    .fuzziness("AUTO")
-                            )
-                    ). should(sk -> sk // Search key should match communityName
-                            .fuzzy(f -> f
-                                    .field("communityName")
-                                    .value(key)
-                                    .fuzziness("AUTO")
-                            )
-                    ).minimumShouldMatch("1");
-                }
+            List<String> filteredKeys = searchKeys.stream()
+                    .filter(k -> k != null && !k.isBlank())
+                    .collect(Collectors.toList());
+
+            // Must: match all keywords in keywords field
+            for (String key : filteredKeys) {
+                boolQueryBuilder.must(m -> m
+                        .match(mt -> mt
+                                .field("keywords")
+                                .query(key)
+                        )
+                );
             }
-            boolQueryBuilder.minimumShouldMatch(String.valueOf(1));
+
+            // Should: fuzzy match in communityName and keywords
+            for (String key : filteredKeys) {
+                boolQueryBuilder.should(s -> s
+                        .match(m -> m
+                                .field("keywords")
+                                .query(key)
+                        )
+                );
+                boolQueryBuilder.should(s -> s
+                        .match(m -> m
+                                .field("communityName")
+                                .query(key)
+                                .fuzziness("AUTO")
+                        )
+                );
+            }
+
+            if (!filteredKeys.isEmpty()) {
+                boolQueryBuilder.minimumShouldMatch("1");
+            }
         }
 
-        // Must match interestCategory
+        // Filter: interestCategory
         if (interestCategory != null && !interestCategory.isBlank()) {
             boolQueryBuilder.must(m -> m
-                    .match(t -> t
+                    .term(t -> t
                             .field("interestCategory")
-                            .query(interestCategory)
+                            .value(interestCategory)
                     )
             );
         }
 
-        // Must match community type
+        // Filter: type
         if (type != null && !type.isBlank()) {
             boolQueryBuilder.must(m -> m
-                    .match(t -> t
+                    .term(t -> t
                             .field("type")
-                            .query(type)
+                            .value(type)
                     )
             );
         }
 
-
-        // Build and execute the query
+        // Build and run query
         Query query = NativeQuery.builder()
                 .withQuery(q -> q.bool(boolQueryBuilder.build()))
                 .build();
@@ -202,9 +193,11 @@ public class CommunitySearchService {
                 elasticsearchOperations.search(query, CommunityDocument.class);
 
         return searchHits.stream()
-                .sorted(Comparator.comparingDouble(SearchHit<CommunityDocument> ::getScore).reversed())
+                .sorted(Comparator.comparingDouble(SearchHit<CommunityDocument>::getScore).reversed())
                 .map(SearchHit::getContent)
                 .collect(Collectors.toList());
+
     }
+
 
 }

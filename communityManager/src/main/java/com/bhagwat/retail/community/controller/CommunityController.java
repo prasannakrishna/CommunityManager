@@ -3,6 +3,7 @@ package com.bhagwat.retail.community.controller;
 import com.bhagwat.retail.community.dto.CommunityResponseDto;
 import com.bhagwat.retail.community.dto.CreateCommunityRequestDto;
 import com.bhagwat.retail.community.entity.Community;
+import com.bhagwat.retail.community.entity.CommunityDocument;
 import com.bhagwat.retail.community.service.CommunityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,7 @@ public class CommunityController {
     private CommunityService communityService;
 
     @PostMapping("/{communityId}/skus/{skuId}")
-    public ResponseEntity<Community> addSkuToCommunity(@PathVariable Long communityId, @PathVariable Long skuId) {
+    public ResponseEntity<CommunityDocument> addSkuToCommunity(@PathVariable Long communityId, @PathVariable Long skuId) {
         return ResponseEntity.ok(communityService.addSkuToCommunity(communityId, skuId));
     }
 

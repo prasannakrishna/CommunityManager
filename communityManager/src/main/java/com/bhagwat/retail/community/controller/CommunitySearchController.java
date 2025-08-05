@@ -6,6 +6,7 @@ import com.bhagwat.retail.community.entity.Community;
 import com.bhagwat.retail.community.entity.CommunityDocument;
 import com.bhagwat.retail.community.enums.CommunityType;
 import com.bhagwat.retail.community.repository.CommunitySearchRepository;
+import com.bhagwat.retail.community.service.CommunityDocumentSearchService;
 import com.bhagwat.retail.community.service.CommunitySearchService;
 import com.bhagwat.retail.community.util.Utils;
 import com.bhagwat.retail.community.validation.CommunityTypeValidator;
@@ -21,11 +22,11 @@ import java.util.List;
 public class CommunitySearchController {
 
     @Autowired
-    private  CommunitySearchService searchService;
+    private CommunityDocumentSearchService searchService;
 
     @PostMapping("/index")
     public String indexCommunity(@RequestBody Community community) {
-       // searchService.indexCommunity(community);
+        //searchService.indexCommunity(community);
         return "Community indexed in Elasticsearch.";
     }
 
@@ -41,7 +42,7 @@ public class CommunitySearchController {
 
         String communityKey = requestDto.getCommunityType().name().equals(CommunityType.DEFAULT.name()) ? "" :requestDto.getCommunityType().name();
         String interestCategoryKey = requestDto.getInterestCategory().name().equals(CommunityType.DEFAULT.name()) ? "" :requestDto.getInterestCategory().name();
-        return searchService.searchCommunitiesChanged(list_SearchKeys, communityKey, interestCategoryKey);
+        return searchService.fuzzySearchPrioritizedAndFiltered(list_SearchKeys, communityKey, interestCategoryKey);
     }
 }
 

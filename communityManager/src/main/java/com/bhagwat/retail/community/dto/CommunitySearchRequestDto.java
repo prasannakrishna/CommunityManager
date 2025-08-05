@@ -17,14 +17,20 @@ public class CommunitySearchRequestDto {
     LinkedHashSet<String> setKeyWords;
 }
 /*
-{
-  "communityType": "CULTURAL",
-  "interestCategory": "FOOD",
+{{
+  "communityType": "SOCIO_CULTURAL",
+  "interestCategory": "ORGANIC_AND_NATURAL_PRODUCTS",
   "setKeyWords": [
-    "havyaka",
-    "yellapura",
-    "karwar",
-    "brahmin"
+    "hdbodhkp",
+            "creative",
+            "u1oar",
+            "kunjz",
+            "avegiy",
+            "tlzrjhat",
+            "ORGANIC_AND_NATURAL_PRODUCTS",
+            "jfvznvpi",
+            "ie6w1q",
+            "fdrax"
   ]
 }
 */

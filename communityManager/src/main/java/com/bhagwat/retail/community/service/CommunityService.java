@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Service
 public class CommunityService {
     @Autowired
-    private CommunityRepository communityRepository;
+    private CommunitySearchRepository communityRepository;
 
     @Autowired
     private CommunitySearchRepository communitySearchRepository;
@@ -34,7 +34,7 @@ public class CommunityService {
 
     private final StringRedisTemplate redisTemplate;
 
-    public CommunityService(CommunityRepository communityRepository, StringRedisTemplate redisTemplate) {
+    public CommunityService(CommunitySearchRepository communityRepository, StringRedisTemplate redisTemplate) {
         this.communityRepository = communityRepository;
         this.redisTemplate = redisTemplate;
     }
@@ -57,7 +57,7 @@ public class CommunityService {
         }*/
 
         // Create new community
-        Community community = new Community();
+        CommunityDocument community = new CommunityDocument();
         //community.setName(name);
         //community.setHashKeys(hashKeys);
         // Save to RDBMS
@@ -70,7 +70,7 @@ public class CommunityService {
         community.setCreatedDate(LocalDateTime.now());
         community.setUpdatedDate(LocalDateTime.now());
 
-        Community saved = communityRepository.save(community);
+        CommunityDocument saved = communityRepository.save(community);
 
         // Save to Elasticsearch
         CommunityDocument doc = CommunityDocument.builder()
@@ -95,7 +95,7 @@ public class CommunityService {
                 .rangeByScore("hashKeyRank", prefix.hashCode(), Double.MAX_VALUE);
 
         if (rankedKeys == null || rankedKeys.isEmpty()) {
-            List<Community> communities = (List<Community>) communityRepository.findAll();
+            List<CommunityDocument> communities = (List<CommunityDocument>) communityRepository.findAll();
            /* List<String> matchingKeys = communities.stream()
                     .flatMap(c -> c.getHashKeys().stream())
                     .filter(key -> key.startsWith(prefix))
@@ -119,15 +119,16 @@ public class CommunityService {
         return communities;
     }
 
-    public Community addSkuToCommunity(Long communityId, Long skuId) {
-        Community community = communityRepository.findById(communityId).orElseThrow(() -> new ResourceNotFoundException("Community not found"));
+    public CommunityDocument addSkuToCommunity(Long communityId, Long skuId) {
+        CommunityDocument community = communityRepository.findById(String.valueOf(communityId)).orElseThrow(() -> new ResourceNotFoundException("Community not found"));
         Sku sku = skuRepository.findById(skuId).orElseThrow(() -> new ResourceNotFoundException("SKU not found"));
         //community.getSkus().add(sku);
         return communityRepository.save(community);
     }
 
     public List<Community> searchCommunityByKeyword(String keyword) {
-        return communityRepository.findByCommunityNameContainingIgnoreCase(keyword);
+        //return communityRepository.findByCommunityNameContainingIgnoreCase(keyword);
+        return null;
     }
 
 }

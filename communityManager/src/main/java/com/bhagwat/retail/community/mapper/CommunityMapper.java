@@ -55,7 +55,7 @@ public class CommunityMapper {
                 .build();
     }
 
-    public static CommunityResponseDto toCommunityResponseDto(Community community) {
+    public static CommunityResponseDto toCommunityResponseDto(CommunityDocument community) {
         return CommunityResponseDto.builder()
                 //.id(community.getId())
                 .communityName(community.getCommunityName())

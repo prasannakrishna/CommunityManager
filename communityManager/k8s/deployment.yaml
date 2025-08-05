@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: community-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: community-manager
+  template:
+    metadata:
+      labels:
+        app: community-manager
+    spec:
+      containers:
+        - name: spring-app
+          image: ghcr.io/prasannakrishna/communityManager:latest
+          ports:
+            - containerPort: 8080

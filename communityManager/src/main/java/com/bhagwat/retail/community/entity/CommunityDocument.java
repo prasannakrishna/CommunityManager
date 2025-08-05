@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.elasticsearch.annotations.*;
 import org.springframework.data.elasticsearch.core.suggest.Completion;
 
@@ -45,9 +46,12 @@ public class CommunityDocument {
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
     private LocalDateTime updatedDate;
 
-    @Field(type = FieldType.Text, analyzer = "standard")
+    @Field(type = FieldType.Keyword)
     private Set<String> keywords;
 
     @CompletionField(maxInputLength = 100)
     private Completion suggest;
+
+    @Transient // This field will not be persisted in Elasticsearch
+    private float score;
 }

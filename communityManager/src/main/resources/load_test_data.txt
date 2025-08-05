@@ -1,0 +1,1 @@
+curl -X POST "localhost:9200/communities/_bulk?pretty" -H 'Content-Type: application/x-ndjson' --data-binary @community_data_bulk.json

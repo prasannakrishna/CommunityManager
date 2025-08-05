@@ -46,19 +46,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-elasticsearch -->
-
-		<!-- https://mvnrepository.com/artifact/org.elasticsearch/elasticsearch-core -->
-
-		<!--<dependency>
-			<groupId>org.springframework.kafka</groupId>
-			<artifactId>spring-kafka</artifactId>
-		</dependency>
+		<!-- ADDED: Spring Boot Starter for Validation -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>-->
-		<!-- https://mvnrepository.com/artifact/org.codelibs/elasticsearch-querybuilders -->
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -86,7 +78,7 @@
 		<!-- MapStruct -->
 		<dependency>
 			<groupId>org.mapstruct</groupId>
-			<artifactId>mapstruct</artifactId>
+			<artifactId>mapstruct-processor</artifactId>
 			<version>1.5.5.Final</version>
 		</dependency>
 		<dependency>
@@ -133,6 +125,31 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
+			<!--<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>{version}</version> &lt;!&ndash; Use a suitable version, e.g., 6.2.1 or later &ndash;&gt;
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>contract/community-service.yaml</inputSpec> &lt;!&ndash; e.g., src/main/resources/openapi.yaml &ndash;&gt;
+							<generatorName>spring</generatorName> &lt;!&ndash; Or other language/framework &ndash;&gt;
+							<outputDir>${project.basedir}/target/generated-sources/openapi</outputDir>
+							<configOptions>
+								<sourceFolder>src/main/java</sourceFolder>
+								<apiPackage>com.bhagwat.retail.community.controller</apiPackage>
+								<modelPackage>com.bhagwat.retail.community.model</modelPackage>
+								<configurationFile>contract/config.json</configurationFile>
+								<supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
+								&lt;!&ndash; Add other configuration options as needed &ndash;&gt;
+							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>-->
 			<!-- Maven Compiler Plugin -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
